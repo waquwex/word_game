@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Word Game</string>
+    <string name="submit">Submit</string>
+    <string name="replay">Replay</string>
+    <string name="letter_list">A B C D E F G H I J K L M N O P R S T U V W X Y Z</string>
+</resources>
