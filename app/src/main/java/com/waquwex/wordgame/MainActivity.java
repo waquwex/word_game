@@ -1,23 +1,27 @@
 package com.waquwex.wordgame;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.waquwex.wordgame.Utils.ArrayUtils;
+import com.waquwex.wordgame.Views.WordleEditText;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -29,18 +33,16 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> allWords;
     private String randomWord;
-    private WordleEditText[] wordleEditTexts = new WordleEditText[6];
+    private final WordleEditText[] wordleEditTexts = new WordleEditText[6];
     private int activeWordleEditTextIndex = 0;
-
     private boolean gameOver = false;
-
-    Button submitButton;
     Button replayButton;
     TextView historyTextView;
-
+    ViewGroup mainContainer;
     private static final char[] englishChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
             'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
     private int[] historyPoints = new int[26];
+    private int mainContentDefaultHeight = 0;
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("randomWord", randomWord);
         outState.putIntArray("historyPoints", historyPoints);
         outState.putInt("activeWordleEditTextIndex", activeWordleEditTextIndex);
-        String[] currentWords =  new String[6];
+        String[] currentWords = new String[6];
         for (int i = 0; i < 6; i++) {
             currentWords[i] = wordleEditTexts[i].getText().toString();
         }
@@ -63,43 +65,44 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mainContainer = findViewById(R.id.mainContainer);
+        if (mainContainer != null) {
+            mainContentDefaultHeight = mainContainer.getLayoutParams().height;
+        }
+
         readWordList();
 
         LinearLayout wordsRoot = findViewById(R.id.wordsRoot);
         for (int i = 0; i < 6; i++) {
             wordleEditTexts[i] = (WordleEditText) wordsRoot.getChildAt(i);
-            wordleEditTexts[i].setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        if (wordleEditTexts[activeWordleEditTextIndex] == v && v.getText().length() == 5) {
-                            submitWord();
-                        }
-                        return true; // Consume the event
+            wordleEditTexts[i].setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (wordleEditTexts[activeWordleEditTextIndex] == v && v.getText().length() == 5) {
+                        submitWord();
                     }
-                    return false; // Continue with the default behavior (e.g., newline character)
+                    return true; // Consume the event
                 }
+                return false; // Continue with the default behavior (e.g., newline character)
             });
         }
 
         replayButton = findViewById(R.id.replayButton);
-        submitButton = findViewById(R.id.submitButton);
 
         // Retrieve saved state, e.g when rotation changes
-        if (savedInstanceState != null)
-        {
+        if (savedInstanceState != null) {
             String randomWordBundle = savedInstanceState.getString("randomWord");
             if (randomWordBundle == null) {
                 Random random = new Random();
                 randomWord = allWords.get(random.nextInt(allWords.size())).toUpperCase(Locale.UK);
+                Log.i("RANDOM", randomWord);
             } else {
                 randomWord = randomWordBundle;
+                Log.i("RANDOM", randomWord);
             }
-            //Log.i("RANDOM_WORD", randomWord);
 
             int[] historyPointsBundle = savedInstanceState.getIntArray("historyPoints");
             if (historyPointsBundle == null) {
-                historyPointsBundle = new int[26];
+                historyPoints = new int[26];
             } else {
                 historyPoints = historyPointsBundle;
             }
@@ -119,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
 
                 if (gameOver) {
                     wordleEditTexts[activeWordleEditTextIndex].finalizeResult(randomWord);
-                    submitButton.setVisibility(View.GONE);
                     replayButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -133,12 +135,6 @@ public class MainActivity extends AppCompatActivity {
             wordleEditTexts[activeWordleEditTextIndex].setEnabled(true);
         }
 
-        submitButton.setOnClickListener(view -> {
-            if (wordleEditTexts[activeWordleEditTextIndex].getText().length() == 5) {
-                submitWord();
-            }
-        });
-
         historyTextView = findViewById(R.id.historyTextView);
         renderHistory(historyTextView);
 
@@ -146,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             gameOver = false;
             for (int i = 0; i < 6; i++) {
                 wordleEditTexts[i].setText("");
-                wordleEditTexts[i].resetColors();
+                wordleEditTexts[i].reset();
             }
 
             historyPoints = new int[26];
@@ -154,11 +150,44 @@ public class MainActivity extends AppCompatActivity {
             renderHistory(historyTextView);
             activeWordleEditTextIndex = 0;
             wordleEditTexts[activeWordleEditTextIndex].setEnabled(true);
-            submitButton.setVisibility(View.VISIBLE);
-            replayButton.setVisibility(View.GONE);
+            replayButton.setVisibility(View.INVISIBLE);
             Random random = new Random();
             randomWord = allWords.get(random.nextInt(allWords.size())).toUpperCase(Locale.UK);
-            //Log.i("RANDOM_WORD", randomWord);
+        });
+
+        // Get the root view
+        // Listen for layout changes to detect keyboard visibility
+        View rootView = getWindow().getDecorView().getRootView();
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect visibleFrame = new Rect();
+                rootView.getWindowVisibleDisplayFrame(visibleFrame);
+                int rootViewHeight = rootView.getHeight();
+                int visibleHeight = visibleFrame.height();
+
+                int orientation = getResources().getConfiguration().orientation;
+
+                ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) mainContainer.getLayoutParams();
+                if ((rootViewHeight - visibleHeight) > (rootViewHeight * 0.15)) { // Keyboard is visible
+                    // If all content is visible don't apply height change
+                    Rect bottomViewRect = new Rect();
+                    layoutParams.height = visibleHeight;
+                    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        mainContainer.getGlobalVisibleRect(bottomViewRect);
+                        // if mainContainer not completely visible adjust height:
+                        // @NOTE: There is some slight coordinate miscalculation
+                        if (bottomViewRect.bottom > visibleHeight) {
+                            mainContainer.setLayoutParams(layoutParams);
+                        }
+                    } else { // Landscape
+                        mainContainer.setLayoutParams(layoutParams);
+                    }
+                } else {
+                    layoutParams.height = mainContentDefaultHeight; // reset it to defaults
+                    mainContainer.setLayoutParams(layoutParams);
+                }
+            }
         });
     }
 
@@ -167,17 +196,12 @@ public class MainActivity extends AppCompatActivity {
         String activeWord = wordleEditTexts[activeWordleEditTextIndex].getText().toString();
 
         if (activeWord.equals(randomWord)) {
-            Toast.makeText(getApplicationContext(), "YOU WON!", Toast.LENGTH_LONG).show();
-            wordleEditTexts[activeWordleEditTextIndex].finalizeResult(randomWord);
             addToHistory(activeWord);
             gameOver(true);
         } else if (!validWord(activeWord)) {
-            Toast.makeText(getApplicationContext(), "INVALID WORD!", Toast.LENGTH_LONG).show();
-        }
-        else {
+            Toast.makeText(getApplicationContext(), "INVALID WORD!", Toast.LENGTH_SHORT).show();
+        } else {
             if (activeWordleEditTextIndex == 5) {
-                Toast.makeText(getApplicationContext(), "YOU LOST! The word was: " + randomWord, Toast.LENGTH_LONG).show();
-                wordleEditTexts[activeWordleEditTextIndex].finalizeResult(randomWord);
                 addToHistory(activeWord);
                 gameOver(false);
             } else {
@@ -195,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
             int charIndex = ArrayUtils.indexOf(englishChars, activeWord.charAt(i));
             if (activeWord.charAt(i) == randomWord.charAt(i)) {
                 historyPoints[charIndex] = 3;
-            } else if (randomWord.contains(String.valueOf(activeWord.charAt(i)))){
+            } else if (randomWord.contains(String.valueOf(activeWord.charAt(i)))) {
                 if (historyPoints[charIndex] != 3) {
                     historyPoints[charIndex] = 2;
                 }
@@ -214,8 +238,7 @@ public class MainActivity extends AppCompatActivity {
             int color = 0xd9d9d9;
             if (historyPoints[i] == 1) {
                 color = 0xFF808080;
-            }
-            else if (historyPoints[i] == 2) {
+            } else if (historyPoints[i] == 2) {
                 color = 0xFF706e01;
             } else if (historyPoints[i] == 3) {
                 color = 0xFF105422;
@@ -230,9 +253,15 @@ public class MainActivity extends AppCompatActivity {
 
     // Switch buttons when game is over
     private void gameOver(boolean won) {
-        submitButton.setVisibility(View.GONE);
-        replayButton.setVisibility(View.VISIBLE);
         gameOver = true;
+        if (won) {
+            Toast.makeText(getApplicationContext(), "YOU WON!", Toast.LENGTH_LONG).show();
+            wordleEditTexts[activeWordleEditTextIndex].finalizeResult(randomWord);
+        } else {
+            Toast.makeText(getApplicationContext(), "YOU LOST! The word was: " + randomWord, Toast.LENGTH_LONG).show();
+            wordleEditTexts[activeWordleEditTextIndex].finalizeResult(randomWord);
+        }
+        replayButton.setVisibility(View.VISIBLE);
     }
 
     // Check word exists in list
@@ -244,7 +273,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-
 
     // Get all words as list from file(R.raw.word_list)
     private void readWordList() {

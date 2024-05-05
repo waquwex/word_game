@@ -1,9 +1,11 @@
 # README
 
-## WORD GAME: A SIMPLE WORDLE CLONE
-* Words are retrieved from a .txt file Resource.
-* Custom EditText for entering word consist of only letter in english alphabet and displaying background colors for game logic.
-* TextView with Spannable who uses BackgroundColorSpan.
+## Word Game: Wordle Clone for Android (Java)
 
-<img src="wg_screen_1.png" height="600" />
-<img src="wg_screen_2.png" height="600" />
+* Words are retrieved from a raw .txt file resource.
+* Custom EditText for entering words consisting of only letters in the English alphabet and displaying background colors for game logic.
+* Animation in Custom EditText with ValueAnimator.
+* TextView with Spannable that uses BackgroundColorSpan.
+* Adapting UI depending on Soft Keyboard status programmatically.
+
+![alt](README_IMAGES/featuregraphic.png)

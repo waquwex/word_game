@@ -7,156 +7,120 @@
     android:background="#111"
     tools:context=".MainActivity">
 
-    <!-- Guideline to represent half the screen -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
+    <FrameLayout
+        android:id="@+id/mainContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.65" />
-
-    <LinearLayout
+        android:layout_height="match_parent"
+        app:layout_constraintHeight_max="500dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        app:layout_constraintHeight_max="0dp"
-        app:layout_constraintBottom_toTopOf="@id/guideline"
-        android:gravity="center"
-        >
-
-        <TextView
-            android:id="@+id/heading"
-            android:layout_width="match_parent"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textColor="#999"
-            android:textSize="30sp"
-            android:fontFamily="monospace"
-            android:background="@drawable/heading_background"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            />
-
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/wordsRoot"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            >
-            <LinearLayout
-                android:id="@+id/wordsRoot"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+            android:gravity="start"
+            android:orientation="vertical">
+
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:horizontalSpacing="20dp"
-                android:orientation="vertical"
-                android:verticalSpacing="20dp"
-                >
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
 
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-                <com.waquwex.wordgame.WordleEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:fontFamily="monospace"
-                    android:maxLength="5" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                >
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
 
-                <TextView
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/wordsRoot"
-                    android:id="@+id/historyTextView"
-                    android:layout_width="260dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/letter_list"
-                    android:textSize="22sp"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    />
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
 
-                <FrameLayout
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/historyTextView"
-                    >
-                    <Button
-                        android:id="@+id/submitButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/submit"
-                        />
-                    <Button
-                        android:visibility="gone"
-                        android:id="@+id/replayButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/replay"
-                        />
-                </FrameLayout>
-            </LinearLayout>
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
+
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
+
+            <com.waquwex.wordgame.Views.WordleEditText
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:fontFamily="@font/courier_prime_regular"
+                android:imeOptions="flagNoFullscreen"
+                android:maxLength="5"
+                app:space="2dp" />
         </LinearLayout>
 
-    </LinearLayout>
+    </FrameLayout>
 
+    <TextView
+        android:id="@+id/heading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/courier_prime_regular"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:text="@string/app_name"
+        android:textColor="#999"
+        android:textSize="26sp"
+        app:layout_constraintLeft_toRightOf="@id/mainContainer"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/historyTextView"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/courier_prime_regular"
+        android:gravity="center"
+        android:text="@string/letter_list"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toRightOf="@id/mainContainer"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/heading" />
+
+    <Button
+        android:id="@+id/replayButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/replay"
+        android:visibility="invisible"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toRightOf="@id/mainContainer"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/mainContainer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
